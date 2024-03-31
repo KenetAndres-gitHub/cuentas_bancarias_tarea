@@ -24,7 +24,7 @@ class CuentaBancariaController{
         connection.Close();
     }
 
-    public void InsertarCuenta(string numero_cuenta, double saldo, string titular)
+    public void InsertarCuenta(double saldo, int titular, string numero_cuenta)
     {
         MySqlConnection connection = conexion.CrearConexion();
         connection.Open();
@@ -32,7 +32,7 @@ class CuentaBancariaController{
         MySqlCommand command = new MySqlCommand(query, connection);
         command.ExecuteNonQuery();
         connection.Close();
-        Console.WriteLine("Cuenta insertada");
+        Console.WriteLine("Cuenta insertada....");
     }
 
     public void ActualizarCuenta(int id, string numero_cuenta, double saldo, string titular)
@@ -62,11 +62,12 @@ class CuentaBancariaController{
        var listaCuentas = SetListaUsuario(id_usuario.ToString());
          foreach (var cuenta in listaCuentas)
          {
-              Console.WriteLine("Saldo $"+ cuenta[1] +", "+"Nro: " + cuenta[3]);
-              MySqlConnection connection = conexion.CrearConexion();
-              connection.Open();
-              ListarTipoCuenta(connection, cuenta[0]);
-              connection.Close();
+            Console.WriteLine("NRO CUENTA: "+ cuenta[3] +", SALDO: $"+ cuenta[1]+"---------");
+            MySqlConnection connection = conexion.CrearConexion();
+            connection.Open();
+            ListarTipoCuenta(connection, cuenta[0]);
+            connection.Close();
+            Console.WriteLine("-------------------------------------------------");
          }
     }
 
@@ -107,7 +108,7 @@ class CuentaBancariaController{
         MySqlDataReader reader = command.ExecuteReader();
         while (reader.Read())
         {
-            var interes = reader[1].ToString();
+            var interes = reader[2].ToString();
             Console.WriteLine("Tipo: Cuenta de ahorro, con interés del "+ interes +"%");
         }
         reader.Close();
@@ -118,10 +119,33 @@ class CuentaBancariaController{
         MySqlDataReader reader2 = command2.ExecuteReader();
         while (reader2.Read())
         {
-            var sobregiro = reader2[0].ToString();
+            var sobregiro = reader2[2].ToString();
             Console.WriteLine("Tipo: Cuenta Corriente, sobregiro: $"+ sobregiro);
         }
         reader2.Close();
 
+    }
+
+    public void InsertarCuentaAhorros(int idCuentaBancaria, double interes)
+    {
+        MySqlConnection connection = conexion.CrearConexion();
+        connection.Open();
+        string query = "INSERT INTO cuenta_ahorro (id_cuenta_bancaria, interes) VALUES ('"+idCuentaBancaria+"', '"+interes+"')";
+        MySqlCommand command = new MySqlCommand(query, connection);
+        command.ExecuteNonQuery();
+        connection.Close();
+        Console.WriteLine("Cuenta de ahorros insertada con éxito");
+       
+    }
+
+    public void InsertarCuentaCorriente(int idCuentaBancaria, double sobregiro)
+    {
+        MySqlConnection connection = conexion.CrearConexion();
+        connection.Open();
+        string query = "INSERT INTO cuenta_corriente (id_cuenta_bancaria, sobregiro_permitido) VALUES ('"+idCuentaBancaria+"', '"+sobregiro+"')";
+        MySqlCommand command = new MySqlCommand(query, connection);
+        command.ExecuteNonQuery();
+        connection.Close();
+        Console.WriteLine("Cuenta corriente insertada con éxito");
     }
 }
